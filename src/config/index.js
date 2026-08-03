@@ -4,6 +4,8 @@
  * @module config
  */
 
+import 'dotenv/config'
+
 const ENV = process.env.NODE_ENV || 'production'
 
 // 서버 포트
@@ -27,6 +29,8 @@ const LOGPATH = {
 /**
  * MariaDB 접속 정보.
  *
+ * 비밀번호는 저장소에 커밋하지 않고 .env(DB_PASSWORD)로 주입한다.
+ *
  * @property {Object} maria
  */
 const MARIADB = {
@@ -34,7 +38,7 @@ const MARIADB = {
     host: '127.0.0.1', // 운영 DB 주소(샘플)
     port: 3306,
     user: 'prod_user',
-    password: 'prod_password',
+    password: process.env.DB_PASSWORD,
     database: 'prod_database',
     dateStrings: true,
     supportBigNumbers: true,
@@ -44,7 +48,7 @@ const MARIADB = {
   },
   development: {
     user: 'dev_user', // 개발 계정(샘플)
-    password: 'dev_password', // 개발 비밀번호(샘플)
+    password: process.env.DB_PASSWORD,
     host: 'dev-db-host', // 개발용 DB 서버 주소(샘플)
     port: 3306, // MySQL/MariaDB 기본 포트
     database: 'dev_database', // 개발 DB 이름(샘플)
@@ -55,11 +59,11 @@ const MARIADB = {
     checkDuplicate: true,
   },
   local: {
-    user: 'local_user',
-    password: 'local_password',
+    user: 'lgf_app',
+    password: process.env.DB_PASSWORD,
     host: '127.0.0.1', // 로컬 개발 DB
     port: 3306,
-    database: 'local_database',
+    database: 'lets_go_festival',
     dateStrings: true,
     supportBigNumbers: true,
     bigNumberStrings: true,
