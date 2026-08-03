@@ -17,6 +17,7 @@
     "@babel/node": "7.28.0",
     "@babel/preset-env": "7.28.5",
     "@babel/register": "7.28.3",
+    "cross-env": "^10.1.0",
     "eslint": "9.39.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import": "2.32.0",
@@ -32,7 +33,7 @@
   "main": "src/index.js",
   "name": "backend-template",
   "scripts": {
-    "local": "NODE_ENV=local nodemon --exec babel-node ./src",
+    "local": "cross-env NODE_ENV=local nodemon --exec babel-node ./src",
     "dev": "pm2 restart backend-sample-dev || pm2 start ecosystem.config.js",
     "start": "pm2 restart backend-sample-prod || pm2 start ecosystem.config.js --env production",
     "stop": "pm2 kill -all",
