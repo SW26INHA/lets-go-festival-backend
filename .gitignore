@@ -1,0 +1,69 @@
+# macOS
+.DS_Store
+
+# Node.js
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+logsdebug
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directories
+coverage
+*.lcov
+.nyc_output
+
+# Dependency directories
+node_modules/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Optional caches
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_*/
+
+# dotenv environment variable files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build output (for compiled TypeScript or bundled JS)
+dist
+build
+
+# Serverless
+.serverless/
+.webpack/
+
+# Optional REPL history
+.node_repl_history
+
+# IDE / Editor settings
+.vscode/
+.idea/
+
+# Oracle Libraries
+src/lib/
+
+# Test
+/coverage
+
+# OS-specific files
+.DS_Store
+Thumbs.db
