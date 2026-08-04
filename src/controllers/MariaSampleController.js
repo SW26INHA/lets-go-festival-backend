@@ -167,11 +167,6 @@ const mariaSampleController = {
   setMariaSampleData,
   updateMariaSampleData,
   deleteMariaSampleData,
-  getOracleSampleDatas,
-  setOracleSample,
-  updateOracleSample,
-  deleteOracleSample,
-  getSampleInfo,
 }
 
 export { mariaSampleController }

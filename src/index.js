@@ -6,7 +6,7 @@ import morgan from 'morgan'
 
 import { config } from './config'
 import router from './router'
-import { logger, socket, stream } from './utils'
+import { logger, stream } from './utils'
 
 global.log = logger
 
@@ -51,8 +51,6 @@ server.on('error', (error) => {
       throw error
   }
 })
-
-socket.connect() // 소켓이 불필요 할 경우 제거
 
 server.on('listening', async () => {
   log.debug(`${port}로 서버가 실행중입니다.`)
