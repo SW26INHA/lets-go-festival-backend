@@ -1,1 +1,1 @@
-export * from './MariaSampleController'
+export * from './RegionController'
