@@ -1,8 +1,9 @@
-import express from 'express';
-import { festivalController } from '../../controllers';
+import express from 'express'
 
-const router = express.Router();
+import { festivalController } from '../../controllers'
 
-router.get('/map', festivalController.getFestivalMapList);
+const festivalApi = express.Router()
 
-export default router
+festivalApi.get('/map', festivalController.getFestivalMapList)
+
+export default festivalApi
