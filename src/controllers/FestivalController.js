@@ -153,10 +153,10 @@ const getFestivalMapList = async (req, res) => {
         'latitude',
         'longitude',
       ],
-      {
-        latitude: { operator: 'IS NOT', value: null },
-        longitude: { operator: 'IS NOT', value: null },
-      }
+      `is_active = 1
+        AND event_end_date >= CURRENT_DATE
+        AND latitude IS NOT NULL
+        AND longitude IS NOT NULL`
     )
 
     const festivals = Array.isArray(result) ? result : []
