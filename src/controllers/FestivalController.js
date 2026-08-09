@@ -108,12 +108,7 @@ const getFestivalList = async (req, res) => {
       LIMIT ? OFFSET ?`,
       [...where.params, filters.size, offset]
     )
-    const festivals = Array.isArray(listResult)
-      ? listResult.map((festival) => ({
-          ...festival,
-          festivalIdx: Number(festival.festivalIdx),
-        }))
-      : []
+    const festivals = Array.isArray(listResult) ? listResult : []
 
     return res.status(200).json({
       success: true,
