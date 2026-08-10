@@ -72,6 +72,40 @@ const MARIADB = {
   },
 }
 
+/**
+ * TourAPI(한국관광공사 국문 관광정보) 연동 정보.
+ *
+ * 서비스키는 저장소에 커밋하지 않고 .env(TOUR_API_SERVICE_KEY)로 주입한다.
+ * 공공데이터포털이 제공하는 두 종류의 키 중 "디코딩" 키를 넣어야 한다.
+ * axios가 쿼리스트링을 자동으로 인코딩하므로 인코딩 키를 넣으면 이중 인코딩되어
+ * SERVICE_KEY_IS_NOT_REGISTERED_ERROR가 발생한다.
+ *
+ * @property {Object} TOURAPI
+ */
+const TOURAPI = {
+  baseUrl: 'https://apis.data.go.kr/B551011/KorService2',
+  mobileApp: 'LetsGoFestival',
+  mobileOS: 'WEB',
+  numOfRows: 100, // 한 페이지 결과 수(최대 100)
+  pageDelay: 100, // 페이지 요청 사이 간격(ms)
+  serviceKey: process.env.TOUR_API_SERVICE_KEY,
+  timeout: 10000,
+}
+
+/**
+ * 스케줄러 설정.
+ *
+ * @property {Object} SCHEDULER
+ */
+const SCHEDULER = {
+  timezone: 'Asia/Seoul',
+  festivalSync: {
+    cron: '0 4 * * 1', // 매주 월요일 04:00
+    startOffsetDays: 30, // 수집 시작일 = 실행일 - 30일
+    endOffsetYears: 1, // 수집 종료일 = 실행일 + 1년
+  },
+}
+
 const config = {
   db: {
     maria: MARIADB[ENV],
@@ -79,6 +113,8 @@ const config = {
   env: ENV,
   logPath: LOGPATH[ENV],
   port: PORT[ENV],
+  scheduler: SCHEDULER,
+  tourApi: TOURAPI,
 }
 
 export { config }

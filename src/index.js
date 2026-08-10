@@ -6,6 +6,7 @@ import morgan from 'morgan'
 
 import { config } from './config'
 import router from './router'
+import { startSchedulers } from './scheduler'
 import { logger, stream } from './utils'
 
 global.log = logger
@@ -54,4 +55,5 @@ server.on('error', (error) => {
 
 server.on('listening', async () => {
   log.debug(`${port}로 서버가 실행중입니다.`)
+  startSchedulers()
 })
