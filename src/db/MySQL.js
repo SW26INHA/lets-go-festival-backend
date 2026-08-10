@@ -1,67 +1,55 @@
-import mariadb from 'mariadb'
+import mysql2 from 'mysql2/promise'
 
 import { config } from '../config'
 import { logger } from '../utils'
 
-let conMaria = null
-let pool = null
-const DB = config.db.maria
+const DB = config.db.mysql
 
-pool = mariadb.createPool(DB)
+const pool = mysql2.createPool(DB)
 
 /**
- * MariaDB Pool 연결 해제.
+ * MySQL Pool 종료.
+ * 서버 종료나 일회성 스크립트 종료 시 사용한다.
+ *
+ * @returns {Promise<void>}
  */
-const close = () => {
-  if (conMaria) {
-    conMaria.release()
-    conMaria = null
+const close = async () => {
+  await pool.end()
+}
+
+/**
+ * MySQL 커넥션 획득.
+ * 트랜잭션처럼 하나의 커넥션을 유지해야 할 때만 사용하고, 반드시 release()해야 한다.
+ *
+ * @returns {Promise<Object>} 커넥션 객체.
+ */
+const connect = async () => {
+  try {
+    return await pool.getConnection()
+  } catch (error) {
+    logger.error(`MySQL 연결오류: ${error.message}`)
+    throw error
   }
 }
 
 /**
- * MariaDB 연결.
+ * 쿼리 실행.
  *
- * @returns {Promise} MariaDB에 연결되었을 경우 연결 객체를 반환하고 실패하였을 경우 오류 반환.
- */
-const connect = async () =>
-  await new Promise((resolve, reject) => {
-    pool
-      .getConnection()
-      .then((connection) => {
-        conMaria = connection
-        resolve(conMaria)
-      })
-      .catch((error) => {
-        logger.error(`MariaDB 연결오류: ${error.message}`)
-        close()
-        reject(error)
-      })
-  })
-
-/**
- * MariaDB 쿼리 실행 (Prepared Statement 기반).
+ * 풀에서 커넥션을 빌려 실행하고 자동으로 반납하므로 동시 실행해도 안전하다.
+ * 값은 모두 "?" 플레이스홀더로 바인딩되어 이스케이프된다.
  *
  * @param {String} query 실행할 쿼리문
  * @param {Array} params 바인딩 파라미터
- * @returns {Promise<any>} 쿼리문 실행이 성공할 경우 결과 데이터를 반환하고 오류가 발생할 경우 오류 반환.
+ * @returns {Promise<any>} SELECT는 행 배열을, 그 외에는 실행 결과(affectedRows 등)를 반환.
  */
-const executeQuery = async (query, params = []) =>
-  await new Promise((resolve, reject) => {
-    connect()
-      .then((connection) => {
-        logger.debug(`MariaDB query: ${query}`)
-        logger.debug(`MariaDB params: %o`, params)
-        connection
-          .query(query, params)
-          .then((result) => resolve(result))
-          .catch((error) => reject(error))
-      })
-      .catch((error) => reject(error))
-      .finally(() => {
-        close()
-      })
-  })
+const executeQuery = async (query, params = []) => {
+  logger.debug(`MySQL query: ${query}`)
+  logger.debug(`MySQL params: %o`, params)
+
+  const [result] = await pool.query(query, params)
+
+  return result
+}
 
 /**
  * 데이터 INSERT 실행.
@@ -89,19 +77,18 @@ const insert = async (table, fields, values) => {
  * @param {Array} values 바인딩 파라미터(값)
  * @returns {Promise<any>}
  */
-const insertQuery = async (query, values) =>
-  new Promise((resolve, reject) => {
-    executeQuery(query, values)
-      .then((result) => resolve(result))
-      .catch((error) => {
-        logger.error(`MariaDB INSERT 오류 : ${error.message}`)
-        reject(error)
-      })
-  })
+const insertQuery = async (query, values) => {
+  try {
+    return await executeQuery(query, values)
+  } catch (error) {
+    logger.error(`MySQL INSERT 오류 : ${error.message}`)
+    throw error
+  }
+}
 
 /**
  * Object 형태의 값을 INSERT.
- * MariaDB 테이블에 데이터를 추가한 후 결과 반환.
+ * 테이블에 데이터를 추가한 후 결과 반환.
  *
  * @param {String} table 데이터를 추가할 테이블명.
  * @param {Object} objectValues 추가할 데이터를 위한 필드명과 값을 포함하는 객체.
@@ -131,7 +118,7 @@ const parseFields = (fields) => {
 
 /**
  * WHERE 조건 파싱.
- * - 모든 값은 Prepared Statement(?)로 바인딩된다.
+ * - 모든 값은 "?" 플레이스홀더로 바인딩된다.
  * - 최상위 key는 반드시 "컬럼명"이어야 한다.
  * - 연산자는 객체 구조로 명시한다.
  * - 문자열 WHERE는 내부 상수 용도로만 사용해야 한다.
@@ -351,15 +338,14 @@ const select = async (
  * @param {Array} params
  * @returns {Promise<any>}
  */
-const selectQuery = async (query, params) =>
-  new Promise((resolve, reject) => {
-    executeQuery(query, params)
-      .then((result) => resolve(result))
-      .catch((error) => {
-        logger.error(`MariaDB SELECT 오류 : ${error.message}`)
-        reject(error)
-      })
-  })
+const selectQuery = async (query, params) => {
+  try {
+    return await executeQuery(query, params)
+  } catch (error) {
+    logger.error(`MySQL SELECT 오류 : ${error.message}`)
+    throw error
+  }
+}
 
 /**
  * UPDATE 실행.
@@ -413,15 +399,14 @@ const parseUpdateValues = (query, values, params) => {
  * @param {Array} params 업데이트할 필드명과 값이 포함된 쿼리문.
  * @returns {Promise<any>} 업데이트 쿼리문 실행에 성공하였을 경우 업데이트 결과 반환, 오류가 발생할 경우 오류 반환.
  */
-const updateQuery = async (query, params) =>
-  new Promise((resolve, reject) => {
-    executeQuery(query, params)
-      .then((result) => resolve(result))
-      .catch((error) => {
-        logger.error(`MariaDB UPDATE 오류 : ${error.message}`)
-        reject(error)
-      })
-  })
+const updateQuery = async (query, params) => {
+  try {
+    return await executeQuery(query, params)
+  } catch (error) {
+    logger.error(`MySQL UPDATE 오류 : ${error.message}`)
+    throw error
+  }
+}
 
 /**
  * DELETE 실행.
@@ -448,22 +433,21 @@ const deleteData = async (table, where) => {
  * @param {Array} params
  * @returns {Promise<any>}
  */
-const deleteQuery = async (query, params) =>
-  new Promise((resolve, reject) => {
-    executeQuery(query, params)
-      .then((result) => resolve(result))
-      .catch((error) => {
-        logger.error(`MariaDB DELETE 오류 : ${error.message}`)
-        reject(error)
-      })
-  })
+const deleteQuery = async (query, params) => {
+  try {
+    return await executeQuery(query, params)
+  } catch (error) {
+    logger.error(`MySQL DELETE 오류 : ${error.message}`)
+    throw error
+  }
+}
 
 /**
- * MariaDB 유틸 모듈.
+ * MySQL 유틸 모듈.
  *
- * @module db/maria
+ * @module db/mysql
  */
-const maria = {
+const mysql = {
   close,
   connect,
   executeQuery,
@@ -475,4 +459,4 @@ const maria = {
   deleteData,
 }
 
-export { maria }
+export { mysql }
