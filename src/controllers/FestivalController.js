@@ -1,4 +1,4 @@
-import { maria } from '../db'
+import { mysql } from '../db'
 
 const buildFestivalListWhere = ({
   regionIdx,
@@ -64,7 +64,7 @@ const getFestivalList = async (req, res) => {
 
   try {
     if (filters.regionIdx !== null) {
-      const regionResult = await maria.executeQuery(
+      const regionResult = await mysql.executeQuery(
         'SELECT 1 FROM region WHERE region_idx = ? LIMIT 1',
         [filters.regionIdx]
       )
@@ -80,14 +80,14 @@ const getFestivalList = async (req, res) => {
     }
 
     const where = buildFestivalListWhere(filters)
-    const countResult = await maria.executeQuery(
+    const countResult = await mysql.executeQuery(
       `SELECT COUNT(*) AS totalElements FROM festival WHERE ${where.clause}`,
       where.params
     )
     const totalElements = Number(countResult[0]?.totalElements || 0)
     const totalPages = Math.ceil(totalElements / filters.size)
     const offset = (filters.page - 1) * filters.size
-    const listResult = await maria.executeQuery(
+    const listResult = await mysql.executeQuery(
       `SELECT
         festival_idx AS festivalIdx,
         title,
@@ -140,7 +140,7 @@ const getFestivalMapList = async (req, res) => {
   const tag = '[FestivalController.getFestivalMapList]'
 
   try {
-    const result = await maria.select(
+    const result = await mysql.select(
       'festival',
       [
         'festival_idx AS festivalIdx',

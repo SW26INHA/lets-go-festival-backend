@@ -7,6 +7,7 @@
  * npm run sync:festival:dry   # 수집만 하고 INSERT는 하지 않음
  * npm run sync:festival       # 실제로 신규 축제를 저장
  */
+import { mysql } from '../db'
 import { festivalSync } from '../services'
 import { logger } from '../utils'
 
@@ -27,7 +28,7 @@ festivalSync
     logger.error(`[RunFestivalSync] 실패: ${error.message}`)
     process.exitCode = 1
   })
-  .finally(() => {
-    // 로그가 파일에 기록될 여유를 준 뒤 커넥션 풀을 끊는다
-    setTimeout(() => process.exit(), 500)
+  .finally(async () => {
+    // 커넥션 풀을 닫아야 프로세스가 스스로 종료된다
+    await mysql.close().catch(() => {})
   })

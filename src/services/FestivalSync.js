@@ -1,7 +1,7 @@
 import moment from 'moment'
 
 import { config } from '../config'
-import { maria } from '../db'
+import { mysql } from '../db'
 import { logger } from '../utils'
 
 import { tourApi } from './TourApi'
@@ -173,7 +173,7 @@ const buildSearchPeriod = (baseDate) => {
  * @returns {Promise<Set<Number>>}
  */
 const selectRegionIdxSet = async () => {
-  const result = await maria.executeQuery('SELECT region_idx FROM region')
+  const result = await mysql.executeQuery('SELECT region_idx FROM region')
   const rows = Array.isArray(result) ? result : []
 
   return new Set(rows.map((row) => Number(row.region_idx)))
@@ -185,7 +185,7 @@ const selectRegionIdxSet = async () => {
  * @returns {Promise<Set<String>>}
  */
 const selectStoredContentIds = async () => {
-  const result = await maria.executeQuery('SELECT content_id FROM festival')
+  const result = await mysql.executeQuery('SELECT content_id FROM festival')
   const rows = Array.isArray(result) ? result : []
 
   return new Set(rows.map((row) => String(row.content_id)))
@@ -194,8 +194,7 @@ const selectStoredContentIds = async () => {
 /**
  * 신규 축제 배치 INSERT.
  *
- * MariaDB 모듈은 커넥션을 모듈 전역에 하나만 유지하므로 병렬 실행하면 안 된다.
- * 청크 단위로 순차 실행한다.
+ * 건별로 INSERT하면 커넥션 획득/반납이 행 수만큼 반복되므로 청크로 묶어 실행한다.
  *
  * @param {Array<Object>} rows INSERT할 행 목록.
  * @returns {Promise<Number>} 실제로 추가된 행 수.
@@ -212,7 +211,7 @@ const insertFestivals = async (rows) => {
       INSERT_COLUMNS.map((column) => row[column])
     )
 
-    const result = await maria.executeQuery(
+    const result = await mysql.executeQuery(
       `INSERT INTO festival (${columns}) VALUES ${placeholders}`,
       params
     )

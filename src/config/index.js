@@ -27,13 +27,16 @@ const LOGPATH = {
 }
 
 /**
- * MariaDB 접속 정보.
+ * MySQL 접속 정보.
  *
  * 비밀번호는 저장소에 커밋하지 않고 .env(DB_PASSWORD)로 주입한다.
  *
- * @property {Object} maria
+ * dateStrings와 bigNumberStrings를 켜두면 DATE/DATETIME과 BIGINT가 문자열로 돌아와
+ * JSON 응답에 그대로 실을 수 있다.
+ *
+ * @property {Object} mysql
  */
-const MARIADB = {
+const MYSQL = {
   production: {
     host: '127.0.0.1', // 운영 DB 주소(샘플)
     port: 3306,
@@ -44,19 +47,19 @@ const MARIADB = {
     supportBigNumbers: true,
     bigNumberStrings: true,
     waitForConnections: true,
-    checkDuplicate: true,
+    connectionLimit: 10,
   },
   development: {
     user: 'dev_user', // 개발 계정(샘플)
     password: process.env.DB_PASSWORD,
     host: 'dev-db-host', // 개발용 DB 서버 주소(샘플)
-    port: 3306, // MySQL/MariaDB 기본 포트
+    port: 3306, // MySQL 기본 포트
     database: 'dev_database', // 개발 DB 이름(샘플)
     dateStrings: true,
     supportBigNumbers: true,
     bigNumberStrings: true,
     waitForConnections: true,
-    checkDuplicate: true,
+    connectionLimit: 10,
   },
   local: {
     user: 'lgf_app',
@@ -68,7 +71,7 @@ const MARIADB = {
     supportBigNumbers: true,
     bigNumberStrings: true,
     waitForConnections: true,
-    checkDuplicate: true,
+    connectionLimit: 10,
   },
 }
 
@@ -108,7 +111,7 @@ const SCHEDULER = {
 
 const config = {
   db: {
-    maria: MARIADB[ENV],
+    mysql: MYSQL[ENV],
   },
   env: ENV,
   logPath: LOGPATH[ENV],

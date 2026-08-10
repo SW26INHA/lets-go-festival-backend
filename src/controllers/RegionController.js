@@ -1,10 +1,10 @@
-import { maria } from '../db'
+import { mysql } from '../db'
 
 const getRegions = async (req, res) => {
   const tag = '[RegionController.getRegions]'
 
   try {
-    const result = await maria.select(
+    const result = await mysql.select(
       'region',
       ['region_idx AS regionIdx', 'region_name AS regionName'],
       null,
