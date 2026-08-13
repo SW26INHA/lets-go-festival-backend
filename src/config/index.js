@@ -21,8 +21,8 @@ const PORT = {
  * @property {Object} LOGPATH
  */
 const LOGPATH = {
-  production: '/app/logs/lets-go-festival/prod',
-  development: '/app/logs/lets-go-festival/dev',
+  production: `${process.cwd()}/lets-go-festival/prod`,
+  development: `${process.cwd()}/lets-go-festival/dev`,
   local: `${process.cwd()}/logs`,
 }
 
