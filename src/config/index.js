@@ -21,8 +21,8 @@ const PORT = {
  * @property {Object} LOGPATH
  */
 const LOGPATH = {
-  production: '/app/logs/backend-template/prod',
-  development: '/app/logs/backend-template/dev',
+  production: '/app/logs/lets-go-festival/prod',
+  development: '/app/logs/lets-go-festival/dev',
   local: `${process.cwd()}/logs`,
 }
 
@@ -38,11 +38,11 @@ const LOGPATH = {
  */
 const MYSQL = {
   production: {
-    host: '127.0.0.1', // 운영 DB 주소(샘플)
-    port: 3306,
-    user: 'prod_user',
+    host: 'mysql-lets-go-festival-manggomee.e.aivencloud.com', // 운영 DB 주소(샘플)
+    port: 20492,
+    user: 'lgf_app',
     password: process.env.DB_PASSWORD,
-    database: 'prod_database',
+    database: 'lets_go_festival',
     dateStrings: true,
     supportBigNumbers: true,
     bigNumberStrings: true,

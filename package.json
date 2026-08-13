@@ -36,7 +36,7 @@
   "scripts": {
     "local": "cross-env NODE_ENV=local nodemon --exec babel-node ./src",
     "dev": "pm2 restart backend-sample-dev || pm2 start ecosystem.config.js",
-    "start": "pm2 restart backend-sample-prod || pm2 start ecosystem.config.js --env production",
+    "start": "cross-env NODE_ENV=production nodemon --exec babel-node ./src",
     "stop": "pm2 kill -all",
     "sync:festival": "cross-env NODE_ENV=local babel-node ./src/scripts/RunFestivalSync.js",
     "sync:festival:dry": "cross-env NODE_ENV=local babel-node ./src/scripts/RunFestivalSync.js --dry",
