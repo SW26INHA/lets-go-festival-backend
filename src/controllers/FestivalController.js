@@ -151,6 +151,11 @@ const getFestivalMapList = async (req, res) => {
         'event_start_date AS eventStartDate',
         'event_end_date AS eventEndDate',
         'telephone',
+        `CASE
+          WHEN CURRENT_DATE BETWEEN event_start_date AND event_end_date THEN 'ONGOING'
+          WHEN event_start_date > CURRENT_DATE THEN 'UPCOMING'
+          ELSE 'ENDED'
+        END AS status`,
         'latitude',
         'longitude',
       ],
