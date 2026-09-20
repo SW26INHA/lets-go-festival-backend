@@ -1,0 +1,21 @@
+name: Keep Backend Active
+
+on:
+  schedule:
+    - cron: '0 9,15,21 * * *'
+      timezone: 'Asia/Seoul'
+
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Call Regions API
+        run: |
+          curl --fail \
+            --retry 2 \
+            --retry-delay 5 \
+            --max-time 120 \
+            https://lets-go-festival-backend.onrender.com/api/v1/regions
