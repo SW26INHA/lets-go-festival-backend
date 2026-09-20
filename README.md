@@ -44,6 +44,23 @@ Node.js(v22.21.1) + Express로 구성된 **축제 정보 서비스** 백엔드�
 | `DB_PASSWORD`          | Aiven MySQL 접속 비밀번호                             |
 | `TOUR_API_SERVICE_KEY` | 공공데이터포털 TourAPI 서비스키(**디코딩 키**를 사용) |
 
+### 서버/DB 활성 유지 (GitHub Actions)
+
+Render와 Aiven의 무료 서비스를 사용하고 있어 장시간 요청이 없는 경우를 대비해
+GitHub Actions에서 주기적으로 백엔드 API를 호출합니다.
+
+별도의 Health Check API는 두지 않고, 기존 지역 조회 API를 호출하여
+백엔드 서버 기동과 DB 조회가 함께 발생하도록 구성했습니다.
+
+- **Workflow**: `.github/workflows/keep-alive.yml`
+- **호출 API**: `GET /api/v1/regions`
+- **호출 주소**: `https://lets-go-festival-backend.onrender.com/api/v1/regions`
+- **실행 주기**: 매일 09:00 / 15:00 / 21:00 (`Asia/Seoul`)
+- **수동 실행**: GitHub Actions의 `Run workflow`를 통해 실행 가능
+
+> 이 Workflow는 Render 서버를 24시간 계속 실행 상태로 유지하기 위한 것이 아니라,
+> 일정 시간마다 실제 API 요청 및 DB 조회가 발생하도록 하기 위한 용도입니다.
+
 ### PM2를 사용하지 않는 이유
 
 Render는 컨테이너에서 **하나의 프로세스를 포그라운드로 유지**하는 방식으로 서비스를 실행합니다.
@@ -167,6 +184,10 @@ PM2는 앱을 백그라운드 데몬으로 띄우고 명령 자체는 바로 종
 
 ```bash
 lets-go-festival-backend/
+├── .github/
+│   └── workflows/
+│       └── keep-alive.yml   # 서버/DB 활성 유지를 위한 주기적 API 호출
+│
 ├── src/
 │   ├── config/          # 환경별 설정 (포트, DB, 로그 경로, TourAPI, 스케줄러)
 │   │   └── index.js
